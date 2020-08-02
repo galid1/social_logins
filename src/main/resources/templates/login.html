@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google-signin-client_id"
+          content="562331496650-1ldgbvpa1348a45criuiq98vbg8j857p.apps.googleusercontent.com">
+
+    <title>Title</title>
+    <!-- BootStrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+          integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+            integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+            crossorigin="anonymous"></script>
+    <!-- JQUERY -->
+    <script src="https://code.jquery.com/jquery-3.5.1.js"
+            integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+
+    <style>
+        .login_btn_container {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+            align-items: center;
+        }
+
+        img {
+            width: 210px;
+            height: 45px;
+        }
+
+        .btn {
+            width: 260px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+<div class="login_btn_container">
+    <div id="csrfToken" style="display: none;" th:text="${csrfToken}"></div>
+
+    <h1>LOGIN</h1>
+    <!-- KAKAO LOGIN BTN -->
+    <div class="btn" id="kakao_login_btn">
+        <img src="/images/kakao_login_btn.png" alt="">
+    </div>
+    <!-- NAVER LOGIN BTN -->
+    <div class="btn" id="naver_login_btn">
+        <img src="/images/naver_login_btn.png" alt="">
+    </div>
+    <!-- GOOGLE LOGIN BTN -->
+    <div class="btn">
+        <div id="google_btn"></div>
+    </div>
+</div>
+
+</body>
+
+<script>
+  $(function () {
+    // ================ kakao login ================
+    Kakao.init('eb77f684435c323b36be6433c989ad19');
+    $("#kakao_login_btn").on("click", function () {
+      Kakao.Auth.authorize({
+        redirectUri: 'http://localhost/auth/kakao/code'
+      });
+    });
+
+    // ================ naver login 요청 ================
+    $("#naver_login_btn").on("click", function() {
+        let csrfToken = $("#csrfToken").text();
+        let client_id = "6jdWKyokOP5L5bpCtYOx";
+        let redirect_uri = encodeURI("http://localhost/auth/naver/code");
+        window.location.href = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${client_id}&redirect_uri=${redirect_uri}&state=${csrfToken}`;
+    });
+  });
+
+  // ================ google ================
+  function onSuccess(googleUser) {
+    let id_token = googleUser.getAuthResponse().id_token;
+
+    // send to server
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', 'http://localhost/auth/google');
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onload = function() {
+      console.log('Signed in as: ' + xhr.responseText);
+    };
+    xhr.send('idtoken=' + id_token);
+  }
+
+  function onFailure(error) {
+    console.log(error);
+  }
+
+  function renderButton() {
+    gapi.signin2.render('google_btn', {
+      'scope': 'profile email',
+      'width': 210,
+      'height': 45,
+      'longtitle': true,
+      'theme': 'white',
+      'onsuccess': onSuccess,
+      'onfailure': onFailure
+    });
+  }
+</script>
+<!-- KAKAO -->
+<script src="/js/kakao.js"></script>
+<!-- GOOGLE -->
+<script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
+</html>
