@@ -1,73 +1,127 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
-    <meta name="generator" content="Jekyll v4.0.1">
+    <meta charset="UTF-8">
+    <meta name="google-signin-client_id"
+          content="562331496650-1ldgbvpa1348a45criuiq98vbg8j857p.apps.googleusercontent.com">
 
-    <!--  Jquery   -->
-    <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-            integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
-            crossorigin="anonymous"></script>
+    <title>Title</title>
+    <!-- BootStrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+          integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
             integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
             crossorigin="anonymous"></script>
-    <!--  Boot strap   -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
-          integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-    <!-- KAKAO -->
-    <script src="/js/kakao.js"></script>
+    <!-- JQUERY -->
+    <script src="https://code.jquery.com/jquery-3.5.1.js"
+            integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
 
     <style>
         .container {
-            width: 100vw;
-            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            height: 100vh;
+        }
+
+        .join_btn_container {
+            display: flex;
             flex-direction: column;
+            justify-content: space-evenly;
+            align-items: center;
+        }
+
+        img {
+            width: 210px;
+            height: 45px;
         }
 
         .btn {
+            width: 260px;
+            display: flex;
+            justify-content: center;
+        }
 
+        .btn:hover {
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+            cursor: pointer;
         }
     </style>
-
-    <script>
-        $(function() {
-           $("button").on("click", function(){
-               let joinType = $(this).attr('id');
-               let data = {joinType: joinType};
-
-               $.ajax({
-                   type: "POST",
-                   url: "/join",
-                   data: JSON.stringify(data),
-                   contentType: 'application/json',
-               });
-           });
-        });
-    </script>
 </head>
 
 <body>
 <div class="container">
-    <div class="welcome_message_container">
-        <img src="" alt="">
-        <h1>회원가입을 진행해주세요!</h1>
-    </div>
+    <div class="join_btn_container">
+        <div id="csrfToken" style="display: none;" th:text="${csrfToken}"></div>
 
-    <div class="btns">
-        <button id="kakao">
-            카카오톡
-        </button>
-        <button id="naver">
-            NAVER
-        </button>
+        <h1>회원가입 방법을 선택하세요</h1>
+        <!-- KAKAO JOIN BTN -->
+        <div class="btn" id="kakao_join_btn">
+            <img src="/images/kakao_login_btn.png" alt="">
+        </div>
+        <!-- NAVER JOIN BTN -->
+        <div class="btn" id="naver_join_btn">
+            <img src="/images/naver_login_btn.png" alt="">
+        </div>
+        <!-- GOOGLE JOIN BTN -->
+        <div class="btn">
+            <div id="google_btn"></div>
+        </div>
     </div>
 </div>
 </body>
+
+<script>
+  $(function () {
+    // ================ kakao join ================
+    Kakao.init('eb77f684435c323b36be6433c989ad19');
+    $("#kakao_join_btn").on("click", function () {
+      Kakao.Auth.authorize({
+        redirectUri: 'http://localhost/auth/kakao/code'
+      });
+    });
+
+    // ================ naver join 요청 ================
+    $("#naver_join_btn").on("click", function() {
+        let csrfToken = $("#csrfToken").text();
+        let client_id = "6jdWKyokOP5L5bpCtYOx";
+        let redirect_uri = encodeURI("http://localhost/auth/naver/code");
+        window.location.href = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${client_id}&redirect_uri=${redirect_uri}&state=${csrfToken}`;
+    });
+  });
+
+  // ================ google ================
+  function onSuccess(googleUser) {
+    let id_token = googleUser.getAuthResponse().id_token;
+
+    // send to server
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', 'http://localhost/auth/google');
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onload = function() {
+      console.log('Signed in as: ' + xhr.responseText);
+    };
+    xhr.send('idtoken=' + id_token);
+  }
+
+  function onFailure(error) {
+    console.log(error);
+  }
+
+  function renderButton() {
+    gapi.signin2.render('google_btn', {
+      'scope': 'profile email',
+      'width': 210,
+      'height': 45,
+      'longtitle': true,
+      'theme': 'white',
+      'onsuccess': onSuccess,
+      'onfailure': onFailure
+    });
+  }
+</script>
+<!-- KAKAO -->
+<script src="/js/kakao.js"></script>
+<!-- GOOGLE -->
+<script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
 </html>
