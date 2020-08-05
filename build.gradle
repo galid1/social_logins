@@ -20,9 +20,9 @@ repositories {
 
 dependencies {
     // retrofit
-    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.7.2'
     // gson converter
-    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.7.2'
 
 //    implementation("com.squareup.okhttp3:okhttp:4.8.0")
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
