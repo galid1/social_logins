@@ -27,6 +27,7 @@ public class NaverApiClient {
                 .getUserInformation("Bearer " + getAccessToken(authorizeCode))
                 .execute()
                 .body()
+                .getResponse()
                 .getId();
     }
 

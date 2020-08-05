@@ -19,7 +19,7 @@ public class NaverController {
 
     @GetMapping("/auth/naver/code")
     public String getAccessToken(@RequestParam("code") String authorizeCode) throws IOException {
-        System.out.println(naverApiClient.getUniqueId(authorizeCode));
+        System.out.println("naver id : " + naverApiClient.getUniqueId(authorizeCode));
         return "main";
     }
 
