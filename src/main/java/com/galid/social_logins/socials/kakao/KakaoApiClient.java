@@ -19,10 +19,8 @@ public class KakaoApiClient {
     private String redirectUri = "http://localhost/auth/kakao/code";
 
     public String getUniqueId(String authorizeCode) throws IOException{
-        String accessToken = getAccessToken(authorizeCode);
-
         return getApiClient(ApiBaseUrls.KAKAO_INFORMATION_BASE_URL)
-                .getUserInformation("Bearer " + accessToken)
+                .getUserInformation("Bearer " + getAccessToken(authorizeCode))
                 .execute()
                 .body()
                 .getId();
