@@ -11,7 +11,6 @@ import java.io.IOException;
 @Controller
 @RequiredArgsConstructor
 public class KakaoController {
-    private final ObjectMapper objMapper;
     private final KakaoApiClient kakaoApiClient;
 
     @GetMapping("/auth/kakao/code")
