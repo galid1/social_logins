@@ -18,9 +18,10 @@ public class NaverController {
     private final NaverApiClient naverApiClient;
 
     @GetMapping("/auth/naver/code")
-    public String getAccessToken(@RequestParam("code") String authorizeCode) throws IOException {
-        System.out.println("naver id : " + naverApiClient.getUniqueId(authorizeCode));
-        return "main";
+    public String getUniqueId(@RequestParam("code") String authorizeCode) throws IOException {
+        String socialId = naverApiClient.getUniqueId(authorizeCode);
+
+        return "redirect:/doJoin?socialId=" + socialId + "&socialType=NAVER";
     }
 
 }
